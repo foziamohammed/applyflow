@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  profile      UserProfile?
+  cvs          CV[]
+  jobs         Job[]
+  analyses     CompatibilityAnalysis[]
+  tailoredCvs  TailoredCV[]
+  applications Application[]
+  refreshTokens RefreshToken[]
+}
+
+model UserProfile {
+  id           String  @id @default(uuid())
+  userId       String  @unique
+  fullName     String
+  headline     String?
+  location     String?
+  linkedinUrl  String?
+  githubUrl    String?
+  portfolioUrl String?
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model CV {
+  id            String   @id @default(uuid())
+  userId        String
+  filename      String
+  storageKey    String
+  mimeType      String
+  parsedText    String?
+  parsedProfile Json?
+  isActive      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  user        User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analyses    CompatibilityAnalysis[]
+  tailoredCvs TailoredCV[]
+  applications Application[]
+}
+
+model Job {
+  id             String   @id @default(uuid())
+  userId         String
+  sourceUrl      String
+  platform       String   @default("unknown")
+  title          String
+  company        String
+  location       String?
+  remote         Boolean  @default(false)
+  rawDescription String
+  requirements   Json?
+  createdAt      DateTime @default(now())
+
+  user         User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analyses     CompatibilityAnalysis[]
+  tailoredCvs  TailoredCV[]
+  applications Application[]
+
+  @@index([userId, createdAt])
+}
+
+model CompatibilityAnalysis {
+  id              String   @id @default(uuid())
+  userId          String
+  cvId            String
+  jobId           String
+  score           Int
+  scoreBreakdown  Json
+  gaps            Json
+  strengths       Json
+  recommendations Json
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cv   CV   @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  tailoredCvs TailoredCV[]
+}
+
+model TailoredCV {
+  id         String   @id @default(uuid())
+  userId     String
+  baseCvId   String
+  jobId      String
+  analysisId String
+  content    Json
+  storageKey String?
+  createdAt  DateTime @default(now())
+
+  user     User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cv       CV                    @relation(fields: [baseCvId], references: [id], onDelete: Cascade)
+  job      Job                   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  analysis CompatibilityAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  applications Application[]
+}
+
+model Application {
+  id           String    @id @default(uuid())
+  userId       String
+  jobId        String
+  cvId         String
+  tailoredCvId String?
+  analysisId   String?
+  status       String    @default("draft")
+  answers      Json      @default("[]")
+  submittedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job        Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  cv         CV          @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  tailoredCv TailoredCV? @relation(fields: [tailoredCvId], references: [id])
+
+  @@index([userId, createdAt])
+}

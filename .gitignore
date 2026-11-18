@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+.next/
+out/
+build/
+.wxt/
+
+# Environment files (never commit secrets)
+.env
+.env.local
+.env.*.local
+
+# Prisma generated client
+apps/api/node_modules/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+*.swp
+*.swo
+
+# Test coverage
+coverage/
+
+# Turbo cache
+.turbo/
