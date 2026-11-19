@@ -35,34 +35,34 @@ This plan delivers the ApplyFlow MVP across 25 ordered, dependency-aware tasks. 
   - [x] 3.5 Implement the public `parse(buffer, mimeType)` function that calls `detectMimeType` to verify magic bytes match the declared MIME before dispatching to `parsePDF` or `parseDOCX`
   - [x] 3.6 Export `CVParser`, `ParseError`, and `SupportedMimeType` from the package barrel; add unit tests for both parsers with fixture files
 
-- [ ] 4. Job Analyzer Package
+- [x] 4. Job Analyzer Package
   **Depends on:** Tasks 1, 2
-  - [~] 4.1 Implement `normalizedMatch(required: string, profileSkills: string[]): boolean` using case-insensitive exact match and Levenshtein similarity ≥ 0.85 (using a pure-TS Levenshtein implementation, no external dep required)
-  - [~] 4.2 Implement `scoreCompatibility(profile, requirements): ScoreBreakdown` following Algorithm 6: skills score (required matches / total), experience score (total months vs required months, capped at 100), education heuristic, keyword overlap — all subscores in [0, 100]
-  - [~] 4.3 Implement `identifyGaps(profile, requirements): SkillGap[]` — for each required/preferred skill in `JobRequirements` absent from profile skills (after normalisation), emit a `SkillGap` with appropriate `required` flag and `severity`
-  - [~] 4.4 Implement `buildTailoringConstraints(profile, gaps): TailoringConstraints` — produce `forbiddenAdditions` (all skills/entities not in profile), `emphasize` (skills matching job), and `deprioritize` (skills irrelevant to job)
-  - [~] 4.5 Implement `computeWeightedScore(breakdown: ScoreBreakdown): number` applying the 40/30/15/15 weights and returning a value in [0, 100]
-  - [~] 4.6 Export the full `JobAnalyzer` interface and all helpers from the package barrel; add unit tests for scoring, gap identification, and weighted score computation
+  - [x] 4.1 Implement `normalizedMatch(required: string, profileSkills: string[]): boolean` using case-insensitive exact match and Levenshtein similarity ≥ 0.85 (using a pure-TS Levenshtein implementation, no external dep required)
+  - [x] 4.2 Implement `scoreCompatibility(profile, requirements): ScoreBreakdown` following Algorithm 6: skills score (required matches / total), experience score (total months vs required months, capped at 100), education heuristic, keyword overlap — all subscores in [0, 100]
+  - [x] 4.3 Implement `identifyGaps(profile, requirements): SkillGap[]` — for each required/preferred skill in `JobRequirements` absent from profile skills (after normalisation), emit a `SkillGap` with appropriate `required` flag and `severity`
+  - [x] 4.4 Implement `buildTailoringConstraints(profile, gaps): TailoringConstraints` — produce `forbiddenAdditions` (all skills/entities not in profile), `emphasize` (skills matching job), and `deprioritize` (skills irrelevant to job)
+  - [x] 4.5 Implement `computeWeightedScore(breakdown: ScoreBreakdown): number` applying the 40/30/15/15 weights and returning a value in [0, 100]
+  - [x] 4.6 Export the full `JobAnalyzer` interface and all helpers from the package barrel; add unit tests for scoring, gap identification, and weighted score computation
 
-- [ ] 5. AI Package
+- [x] 5. AI Package
   **Depends on:** Tasks 1, 2
-  - [~] 5.1 Set up the OpenAI client wrapper (`packages/ai/src/client.ts`) initialized from `process.env.OPENAI_API_KEY`; export a singleton `aiClient`
-  - [~] 5.2 Implement `extractCVProfile(rawText: string): Promise<ParsedCVProfile>` — structured output prompt using `gpt-4o`, response validated against the `ParsedCVProfile` shape
-  - [~] 5.3 Implement `extractJobRequirements(rawDescription: string): Promise<JobRequirements>` — structured output prompt placing the raw description in the user turn (never in the system prompt, per Requirement 21.1)
-  - [~] 5.4 Implement `analyzeCompatibility(profile, requirements): Promise<CompatibilityResult>` returning qualitative `strengths` and `recommendations`
-  - [~] 5.5 Implement `tailorCV(profile, requirements, systemPrompt): Promise<TailoredCVContent>` with model fallback: attempt `gpt-4o`; if the prompt exceeds the context window, retry with `gpt-4o-mini` (Requirement 20.4)
-  - [~] 5.6 Implement `generateAnswers(profile, requirements, questions, priorAnswers): Promise<string[]>` placing all user-supplied text in the user turn
-  - [~] 5.7 Implement `withRetry<T>(fn: () => Promise<T>, maxAttempts: number): Promise<T>` — exponential backoff with delays 1 s, 2 s, 4 s on 429 and 5xx responses; throw `AIUnavailableError` after exhausting retries; log each failed attempt (Requirement 13)
-  - [~] 5.8 Wrap every public AI function with `withRetry`; export `AIClient`, `AIUnavailableError`, and all function implementations from the barrel
+  - [x] 5.1 Set up the OpenAI client wrapper (`packages/ai/src/client.ts`) initialized from `process.env.OPENAI_API_KEY`; export a singleton `aiClient`
+  - [x] 5.2 Implement `extractCVProfile(rawText: string): Promise<ParsedCVProfile>` — structured output prompt using `gpt-4o`, response validated against the `ParsedCVProfile` shape
+  - [x] 5.3 Implement `extractJobRequirements(rawDescription: string): Promise<JobRequirements>` — structured output prompt placing the raw description in the user turn (never in the system prompt, per Requirement 21.1)
+  - [x] 5.4 Implement `analyzeCompatibility(profile, requirements): Promise<CompatibilityResult>` returning qualitative `strengths` and `recommendations`
+  - [x] 5.5 Implement `tailorCV(profile, requirements, systemPrompt): Promise<TailoredCVContent>` with model fallback: attempt `gpt-4o`; if the prompt exceeds the context window, retry with `gpt-4o-mini` (Requirement 20.4)
+  - [x] 5.6 Implement `generateAnswers(profile, requirements, questions, priorAnswers): Promise<string[]>` placing all user-supplied text in the user turn
+  - [x] 5.7 Implement `withRetry<T>(fn: () => Promise<T>, maxAttempts: number): Promise<T>` — exponential backoff with delays 1 s, 2 s, 4 s on 429 and 5xx responses; throw `AIUnavailableError` after exhausting retries; log each failed attempt (Requirement 13)
+  - [x] 5.8 Wrap every public AI function with `withRetry`; export `AIClient`, `AIUnavailableError`, and all function implementations from the barrel
 
-- [ ] 6. Database Schema
+- [x] 6. Database Schema
   **Depends on:** Task 1
   - [x] 6.1 Write the Prisma schema (`apps/api/prisma/schema.prisma`) with all 7 models: `User`, `UserProfile`, `CV`, `Job`, `CompatibilityAnalysis`, `TailoredCV`, `Application` — including all JSONB fields (`parsedProfile`, `requirements`, `scoreBreakdown`, `gaps`, `strengths`, `recommendations`, `content`, `answers`) typed as `Json`
-  - [ ] 6.2 Add `@@index([userId, createdAt])` to both the `Job` and `Application` models
-  - [~] 6.3 Define the `UserProfile` model with all optional fields (`headline`, `location`, `linkedinUrl`, `githubUrl`, `portfolioUrl`) and a unique relation to `User`
-  - [~] 6.4 Add a `RefreshToken` model (or token field on `User`) to support JWT refresh token storage and rotation
+  - [x] 6.2 Add `@@index([userId, createdAt])` to both the `Job` and `Application` models
+  - [x] 6.3 Define the `UserProfile` model with all optional fields (`headline`, `location`, `linkedinUrl`, `githubUrl`, `portfolioUrl`) and a unique relation to `User`
+  - [x] 6.4 Add a `RefreshToken` model (or token field on `User`) to support JWT refresh token storage and rotation
   - [~] 6.5 Run `prisma migrate dev --name init` to generate the initial migration SQL file; commit migration files to source control
-  - [~] 6.6 Generate the Prisma client and verify TypeScript types are emitted correctly; add a `postinstall` script to regenerate the client on `pnpm install`
+  - [x] 6.6 Generate the Prisma client and verify TypeScript types are emitted correctly; add a `postinstall` script to regenerate the client on `pnpm install`
 
 - [ ] 7. Backend API — Auth
   **Depends on:** Tasks 2, 6
